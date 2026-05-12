@@ -1,1 +1,147 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Supermarket ERP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🏪</div>
+                <h2>SuperERP</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="pos.html" class="nav-item">🛒 POS</a>
+                <a href="products.html" class="nav-item active">📦 Products</a>
+                <a href="inventory.html" class="nav-item">📋 Inventory</a>
+                <a href="reports.html" class="nav-item">📈 Reports</a>
+                <a href="expenses.html" class="nav-item">💰 Expenses</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Product Management</h1>
+                <button class="btn-add" id="addProductBtn">+ Add Product</button>
+            </header>
+            
+            <div class="content">
+                <!-- Search and Filter -->
+                <div class="search-filter-bar">
+                    <input type="text" id="searchProducts" placeholder="Search by name or barcode..." class="search-input">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option>Groceries</option>
+                        <option>Beverages</option>
+                        <option>Dairy</option>
+                        <option>Meat</option>
+                        <option>Produce</option>
+                        <option>Frozen</option>
+                    </select>
+                    <button class="btn-import" id="importBtn">📥 Import CSV</button>
+                </div>
+                
+                <!-- Products Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Barcode</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Buy Price</th>
+                                <th>Sell Price</th>
+                                <th>Stock</th>
+                                <th>Expiry</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <tr><td colspan="8">Loading products...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Add Product</h2>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="prodName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Barcode *</label>
+                        <input type="text" id="prodBarcode" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="prodCategory">
+                            <option>Groceries</option>
+                            <option>Beverages</option>
+                            <option>Dairy</option>
+                            <option>Meat</option>
+                            <option>Produce</option>
+                            <option>Frozen</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier</label>
+                        <input type="text" id="prodSupplier">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Buying Price *</label>
+                        <input type="number" id="prodBuyPrice" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Selling Price *</label>
+                        <input type="number" id="prodSellPrice" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quantity *</label>
+                        <input type="number" id="prodQuantity" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="date" id="prodExpiry">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel">Cancel</button>
+                    <button type="submit" class="btn-save">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/products.js"></script>
+</body>
+</html>
