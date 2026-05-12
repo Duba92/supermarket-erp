@@ -1,1 +1,89 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - Supermarket ERP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🏪</div>
+                <h2>SuperERP</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="pos.html" class="nav-item">🛒 POS</a>
+                <a href="products.html" class="nav-item">📦 Products</a>
+                <a href="inventory.html" class="nav-item active">📋 Inventory</a>
+                <a href="reports.html" class="nav-item">📈 Reports</a>
+                <a href="expenses.html" class="nav-item">💰 Expenses</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Inventory Management</h1>
+            </header>
+            
+            <div class="content">
+                <!-- Stock Alerts -->
+                <div class="alert-banner" id="alertBanner"></div>
+                
+                <!-- Stock In/Out Form -->
+                <div class="card">
+                    <h2>Stock Adjustment</h2>
+                    <div class="stock-form">
+                        <select id="stockProduct" class="stock-select">
+                            <option value="">Select Product</option>
+                        </select>
+                        <select id="stockType">
+                            <option value="in">📥 Stock In</option>
+                            <option value="out">📤 Stock Out</option>
+                        </select>
+                        <input type="number" id="stockQuantity" placeholder="Quantity" min="1">
+                        <input type="text" id="stockReason" placeholder="Reason (optional)">
+                        <button class="btn-primary" id="updateStockBtn">Update Stock</button>
+                    </div>
+                </div>
+                
+                <!-- Inventory List -->
+                <div class="card">
+                    <h2>Current Inventory</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInventory" placeholder="Search products...">
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Current Stock</th>
+                                    <th>Min Stock</th>
+                                    <th>Status</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                                <tr><td colspan="5">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/inventory.js"></script>
+</body>
+</html>
