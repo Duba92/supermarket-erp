@@ -1,4 +1,36 @@
 // Supabase Configuration
+// Check if Supabase is available
+let supabaseClient = null;
+
+// Try to initialize Supabase, but don't fail if not available
+async function tryInitSupabase() {
+    if (typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+        try {
+            supabaseClient = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+            return true;
+        } catch (e) {
+            console.warn('Supabase initialization failed, using localStorage fallback');
+            return false;
+        }
+    }
+    return false;
+}
+
+// Wrapper for getCachedProducts that uses localStorage fallback
+window.db = window.db || {};
+window.db.getCachedProducts = async function() {
+    try {
+        // Try IndexedDB first
+        if (window.db && window.db.get) {
+            const products = await window.db.get('products');
+            if (products && products.length) return products;
+        }
+    } catch(e) {}
+    
+    // Fallback to localStorage
+    const products = localStorage.getItem('products');
+    return products ? JSON.parse(products) : [];
+};
 const SUPABASE_URL = 'https://yqttjaobknytsssfujht.supabase.co/rest/v1/';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxdHRqYW9ia255dHNzc2Z1amh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MDI1NDYsImV4cCI6MjA5NDE3ODU0Nn0.-ltcRWvpmW0YG6nbHKyYj9molcNUCfEWPY_bKlCU4lI';
 
