@@ -1,1 +1,112 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Supermarket ERP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🏪</div>
+                <h2>SuperERP</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="pos.html" class="nav-item">🛒 POS</a>
+                <a href="products.html" class="nav-item">📦 Products</a>
+                <a href="inventory.html" class="nav-item">📋 Inventory</a>
+                <a href="reports.html" class="nav-item active">📈 Reports</a>
+                <a href="expenses.html" class="nav-item">💰 Expenses</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Sales Reports</h1>
+            </header>
+            
+            <div class="content">
+                <!-- Report Filters -->
+                <div class="report-filters">
+                    <select id="reportPeriod">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                    <input type="date" id="startDate">
+                    <input type="date" id="endDate">
+                    <button class="btn-primary" id="generateReportBtn">Generate Report</button>
+                    <button class="btn-secondary" id="exportCSVBtn">📄 Export CSV</button>
+                    <button class="btn-secondary" id="printReportBtn">🖨️ Print</button>
+                </div>
+                
+                <!-- Report Summary -->
+                <div class="stats-grid" id="reportSummary">
+                    <div class="stat-card">
+                        <h3>Total Sales</h3>
+                        <div class="stat-value" id="totalSales">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Profit</h3>
+                        <div class="stat-value" id="totalProfit">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Transactions</h3>
+                        <div class="stat-value" id="totalTransactions">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Average Sale</h3>
+                        <div class="stat-value" id="avgSale">$0</div>
+                    </div>
+                </div>
+                
+                <!-- Best Selling Products -->
+                <div class="card">
+                    <h2>Best Selling Products</h2>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Product</th><th>Quantity Sold</th><th>Revenue</th></tr>
+                            </thead>
+                            <tbody id="bestSellersBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Sales Chart -->
+                <div class="card">
+                    <h2>Sales Trend</h2>
+                    <canvas id="salesChart" style="max-height: 300px; width: 100%;"></canvas>
+                </div>
+                
+                <!-- Detailed Sales Table -->
+                <div class="card">
+                    <h2>Transaction Details</h2>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Date</th><th>Cashier</th><th>Amount</th><th>Payment</th></tr>
+                            </thead>
+                            <tbody id="salesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/reports.js"></script>
+</body>
+</html>
