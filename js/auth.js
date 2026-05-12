@@ -38,7 +38,7 @@ async function login(email, password, rememberMe = false) {
             if (!error && data.user) {
                 // Get user profile from users table
           const { data: userData, error: userError } = await supabaseClient
-                .from('store_users')  // Updated table name
+                .from('users')  // Updated table name
                 .select('*')
                 .eq('id', data.user.id)
                 .single();
