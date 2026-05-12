@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create PWA Icons</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .success {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <h1>🖼️ PWA Icon Generator</h1>
+    <p>This tool creates simple icons for your PWA. Click each button to download the icons.</p>
+    
+    <div id="icons"></div>
+    
+    <button id="downloadAllBtn">📦 Download All Icons</button>
+    
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const iconsContainer = document.getElementById('icons');
+        let generatedIcons = [];
+        
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2563eb');
+            gradient.addColorStop(1, '#1e40af');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Border radius effect
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.2);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // Draw shopping cart icon
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🛒', size / 2, size / 2);
+            
+            // Add store text for larger icons
+            if (size >= 128) {
+                ctx.font = `${size * 0.12}px Arial`;
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.fillText('SUPER', size / 2, size * 0.85);
+            }
+            
+            // Preview
+            const preview = document.createElement('div');
+            preview.className = 'icon-preview';
+            preview.innerHTML = `
+                <canvas width="${size}" height="${size}" style="width:64px;height:64px"></canvas>
+                <div>${size}x${size}</div>
+                <a id="download-${size}" download="icon-${size}.png">Download</a>
+            `;
+            
+            const previewCanvas = preview.querySelector('canvas');
+            previewCanvas.getContext('2d').drawImage(canvas, 0, 0, 64, 64);
+            
+            iconsContainer.appendChild(preview);
+            
+            // Store for batch download
+            generatedIcons.push({
+                size: size,
+                canvas: canvas
+            });
+            
+            // Setup download link
+            const link = preview.querySelector(`a`);
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+            });
+        }
+        
+        // Helper for rounded rectangle
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.moveTo(x+r, y);
+                this.lineTo(x+w-r, y);
+                this.quadraticCurveTo(x+w, y, x+w, y+r);
+                this.lineTo(x+w, y+h-r);
+                this.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+                this.lineTo(x+r, y+h);
+                this.quadraticCurveTo(x, y+h, x, y+h-r);
+                this.lineTo(x, y+r);
+                this.quadraticCurveTo(x, y, x+r, y);
+                return this;
+            };
+        }
+        
+        // Generate all icons
+        sizes.forEach(size => generateIcon(size));
+        
+        // Download all button
+        document.getElementById('downloadAllBtn').addEventListener('click', async () => {
+            for (const icon of generatedIcons) {
+                const blob = await new Promise(resolve => icon.canvas.toBlob(resolve));
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${icon.size}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            alert('All icons downloaded! Extract them to assets/icons/ folder');
+        });
+    </script>
+</body>
+</html>
