@@ -1,1 +1,120 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses - Supermarket ERP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🏪</div>
+                <h2>SuperERP</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="pos.html" class="nav-item">🛒 POS</a>
+                <a href="products.html" class="nav-item">📦 Products</a>
+                <a href="inventory.html" class="nav-item">📋 Inventory</a>
+                <a href="reports.html" class="nav-item">📈 Reports</a>
+                <a href="expenses.html" class="nav-item active">💰 Expenses</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Expense Tracking</h1>
+                <button class="btn-add" id="addExpenseBtn">+ Add Expense</button>
+            </header>
+            
+            <div class="content">
+                <!-- Expense Summary -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Today's Expenses</h3>
+                        <div class="stat-value" id="todayExpenses">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>This Month</h3>
+                        <div class="stat-value" id="monthExpenses">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Expenses</h3>
+                        <div class="stat-value" id="totalExpenses">$0</div>
+                    </div>
+                </div>
+                
+                <!-- Expenses Table -->
+                <div class="card">
+                    <h2>Expense History</h2>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Title</th>
+                                    <th>Amount</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expensesTableBody">
+                                <tr><td colspan="5">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Expense</h2>
+            <form id="expenseForm">
+                <div class="form-group">
+                    <label>Expense Title *</label>
+                    <input type="text" id="expenseTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount *</label>
+                    <input type="number" id="expenseAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="expenseCategory">
+                        <option>Rent</option>
+                        <option>Utilities</option>
+                        <option>Salaries</option>
+                        <option>Supplies</option>
+                        <option>Maintenance</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="expenseDescription" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel">Cancel</button>
+                    <button type="submit" class="btn-save">Save Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/expenses.js"></script>
+</body>
+</html>
