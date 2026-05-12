@@ -1,1 +1,95 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>POS - Supermarket ERP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app pos-app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🏪</div>
+                <h2>POS System</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="pos.html" class="nav-item active">🛒 POS</a>
+                <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="products.html" class="nav-item">📦 Products</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </aside>
+        
+        <main class="pos-main">
+            <div class="pos-container">
+                <!-- Product Search Area -->
+                <div class="pos-search-area">
+                    <div class="search-box">
+                        <input type="text" id="barcodeInput" placeholder="Scan barcode or search product..." autofocus>
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    <div class="keyboard-hint">
+                        ⌨️ Use keyboard: Enter to add, F for coupon, C for clear
+                    </div>
+                </div>
+                
+                <!-- Cart and Payment Area -->
+                <div class="pos-cart-area">
+                    <div class="cart-items">
+                        <h3>Shopping Cart</h3>
+                        <div class="cart-header">
+                            <span>Product</span>
+                            <span>Qty</span>
+                            <span>Price</span>
+                            <span>Total</span>
+                            <span></span>
+                        </div>
+                        <div id="cartItems" class="cart-list">
+                            <div class="empty-cart">Cart is empty. Scan or search products...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (10%):</span>
+                            <span id="tax">$0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                        
+                        <div class="payment-section">
+                            <select id="paymentMethod" class="payment-select">
+                                <option value="cash">💵 Cash</option>
+                                <option value="card">💳 Card</option>
+                                <option value="mobile">📱 Mobile Payment</option>
+                            </select>
+                            
+                            <div class="action-buttons-large">
+                                <button class="btn-large btn-clear" id="clearCartBtn">🗑️ Clear</button>
+                                <button class="btn-large btn-checkout" id="checkoutBtn">✅ Checkout</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/pos.js"></script>
+</body>
+</html>
