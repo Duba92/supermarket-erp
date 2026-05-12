@@ -1,6 +1,6 @@
 // Supabase Configuration
 const SUPABASE_URL = 'https://yqttjaobknytsssfujht.supabase.co/rest/v1/';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxdHRqYW9ia255dHNzc2Z1amh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MDI1NDYsImV4cCI6MjA5NDE3ODU0Nn0.-ltcRWvpmW0YG6nbHKyYj9molcNUCfEWPY_bKlCU4lI';
 
 // Global variables
 let supabaseClient = null;
