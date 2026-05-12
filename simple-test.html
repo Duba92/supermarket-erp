@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supermarket ERP Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .success { color: green; background: #d4edda; padding: 10px; border-radius: 5px; }
+        .error { color: red; background: #f8d7da; padding: 10px; border-radius: 5px; }
+        .card { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 10px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 10px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>🏪 Supermarket ERP - Working Version</h1>
+    
+    <div class="card">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Email" value="cashier@supermarket.com">
+        <input type="password" id="password" placeholder="Password" value="cashier123">
+        <button onclick="login()">Login</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div id="dashboard" style="display:none;">
+        <div class="card">
+            <h2>Dashboard</h2>
+            <button onclick="loadProducts()">📦 View Products</button>
+            <button onclick="logout()">🚪 Logout</button>
+            <div id="userInfo" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="card" id="productsCard" style="display:none;">
+            <h2>Products</h2>
+            <div id="productsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // YOUR SUPABASE CREDENTIALS - REPLACE THESE!
+        const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';  // CHANGE THIS
+        const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';  // CHANGE THIS
+        
+        let supabase = null;
+        let currentUser = null;
+        
+        // Initialize Supabase
+        function initSupabase() {
+            supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase initialized');
+        }
+        
+        // Login function
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            // Demo user check (since we're not using Supabase Auth)
+            const demoUsers = {
+                'admin@supermarket.com': { name: 'Admin User', role: 'Admin', password: 'admin123' },
+                'cashier@supermarket.com': { name: 'Cashier User', role: 'Cashier', password: 'cashier123' },
+                'manager@supermarket.com': { name: 'Store Manager', role: 'Store Manager', password: 'manager123' }
+            };
+            
+            const user = demoUsers[email];
+            
+            if (user && user.password === password) {
+                currentUser = { email, name: user.name, role: user.role };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                resultDiv.innerHTML = '<div class="success">✅ Login successful!</div>';
+                document.getElementById('loginResult').style.display = 'block';
+                document.querySelector('.card:first-child').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('userInfo').innerHTML = `Welcome, ${currentUser.name} (${currentUser.role})`;
+                
+                // Auto load products
+                loadProducts();
+            } else {
+                resultDiv.innerHTML = '<div class="error">❌ Invalid email or password</div>';
+            }
+        }
+        
+        // Load products from Supabase
+        async function loadProducts() {
+            if (!supabase) initSupabase();
+            
+            const productsCard = document.getElementById('productsCard');
+            const productsList = document.getElementById('productsList');
+            
+            productsCard.style.display = 'block';
+            productsList.innerHTML = '<p>Loading products...</p>';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('name');
+                
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    productsList.innerHTML = `
+                        <table style="width:100%; border-collapse: collapse;">
+                            <tr style="background:#f0f2f5;">
+                                <th style="padding:10px; text-align:left;">Name</th>
+                                <th style="padding:10px; text-align:left;">Barcode</th>
+                                <th style="padding:10px; text-align:left;">Price</th>
+                                <th style="padding:10px; text-align:left;">Stock</th>
+                            </tr>
+                            ${data.map(product => `
+                                <tr style="border-bottom:1px solid #ddd;">
+                                    <td style="padding:10px;">${product.name}</td>
+                                    <td style="padding:10px;">${product.barcode}</td>
+                                    <td style="padding:10px;">$${product.sell_price}</td>
+                                    <td style="padding:10px;">${product.quantity}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                        <p style="margin-top:10px;"><strong>Total Products:</strong> ${data.length}</p>
+                    `;
+                } else {
+                    productsList.innerHTML = '<p>No products found. Please run the SQL script to insert sample data.</p>';
+                }
+            } catch (error) {
+                productsList.innerHTML = `<div class="error">Error loading products: ${error.message}</div>`;
+                console.error('Error:', error);
+            }
+        }
+        
+        // Logout
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            location.reload();
+        }
+        
+        // Check for existing login
+        function checkExistingLogin() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.querySelector('.card:first-child').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('userInfo').innerHTML = `Welcome, ${currentUser.name} (${currentUser.role})`;
+                loadProducts();
+            }
+        }
+        
+        // Initialize
+        initSupabase();
+        checkExistingLogin();
+    </script>
+</body>
+</html>
