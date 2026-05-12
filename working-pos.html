@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Supermarket POS - Working Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f0f2f5;
+        }
+
+        /* App Container */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+            color: #1e293b;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #64748b;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #f8fafc;
+            color: #2563eb;
+            border-right: 3px solid #2563eb;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .user-info {
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 0.5rem;
+            background: none;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: #ef4444;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+        }
+
+        .top-bar {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+        }
+
+        .stat-info h3 {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            margin-bottom: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn.primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        /* POS Styles */
+        .pos-container {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .products-section {
+            flex: 2;
+        }
+
+        .cart-section {
+            flex: 1;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .product-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-color: #2563eb;
+        }
+
+        .product-price {
+            color: #2563eb;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .cart-item-controls button {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+
+        .cart-total {
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-checkout {
+            background: #10b981;
+            color: white;
+            padding: 1rem;
+            width: 100%;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 1rem;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none;
+        }
+
+        /* Login */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+
+        .login-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .pos-container {
+                flex-direction: column;
+            }
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="font-size: 3rem;">🏪</div>
+                <h1>Supermarket ERP</h1>
+                <p>Login to your account</p>
+            </div>
+            <div class="form-group">
+                <input type="email" id="loginEmail" placeholder="Email" value="cashier@supermarket.com">
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Password" value="cashier123">
+            </div>
+            <button class="btn-primary" style="width: 100%;" onclick="handleLogin()">Login</button>
+            <p style="margin-top: 1rem; font-size: 0.875rem; text-align: center; color: #64748b;">
+                Demo: cashier@supermarket.com / cashier123<br>
+                Admin: admin@supermarket.com / admin123
+            </p>
+        </div>
+    </div>
+
+    <div id="appContainer" class="app-container hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🏪</div>
+                <h2>SuperERP</h2>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="showPage('dashboard')">
+                    <span>📊</span> Dashboard
+                </div>
+                <div class="nav-item" onclick="showPage('pos')">
+                    <span>🛒</span> POS
+                </div>
+                <div class="nav-item" onclick="showPage('products')">
+                    <span>📦</span> Products
+                </div>
+                <div class="nav-item" onclick="showPage('inventory')">
+                    <span>📋</span> Inventory
+                </div>
+                <div class="nav-item" onclick="showPage('reports')">
+                    <span>📈</span> Reports
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo">Loading...</div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <button onclick="toggleSidebar()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">☰</button>
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="connection-status">
+                    <span class="status-dot"></span>
+                    <span>Online</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage">
+                    <div class="stats-grid" id="statsGrid"></div>
+                    
+                    <div class="quick-actions">
+                        <h2>Quick Actions</h2>
+                        <div class="action-buttons">
+                            <button class="action-btn primary" onclick="showPage('pos')">🛒 New Sale</button>
+                            <button class="action-btn" onclick="showPage('products')">➕ Add Product</button>
+                            <button class="action-btn" onclick="showPage('inventory')">📦 Stock Check</button>
+                            <button class="action-btn" onclick="showPage('reports')">📊 View Reports</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>Time</th><th>Cashier</th><th>Amount</th><th>Status</th></tr></thead>
+                            <tbody id="recentTransactions"></tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="lowStockAlerts"></div>
+                </div>
+
+                <!-- POS Page -->
+                <div id="posPage" class="hidden">
+                    <div class="pos-container">
+                        <div class="products-section">
+                            <div class="form-group">
+                                <input type="text" id="searchProduct" placeholder="Search products..." onkeyup="filterProducts()">
+                            </div>
+                            <div class="product-grid" id="productGrid"></div>
+                        </div>
+                        <div class="cart-section">
+                            <h3>Shopping Cart</h3>
+                            <div id="cartItemsList"></div>
+                            <div class="cart-total">
+                                <h3>Total: $<span id="cartTotal">0.00</span></h3>
+                                <select id="paymentMethod" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;">
+                                    <option value="cash">💵 Cash</option>
+                                    <option value="card">💳 Card</option>
+                                    <option value="mobile">📱 Mobile</option>
+                                </select>
+                                <button class="btn-checkout" onclick="checkout()">✅ Checkout</button>
+                                <button onclick="clearCart()" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem; background: #ef4444; color: white; border: none; border-radius: 0.5rem;">🗑️ Clear Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Page -->
+                <div id="productsPage" class="hidden">
+                    <button class="btn-primary" onclick="openProductModal()" style="margin-bottom: 1rem;">+ Add Product</button>
+                    <div class="form-group">
+                        <input type="text" id="productSearch" placeholder="Search products..." onkeyup="loadProducts()">
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>Name</th><th>Barcode</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
+                            <tbody id="productsList"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Inventory Page -->
+                <div id="inventoryPage" class="hidden">
+                    <div class="stats-grid" id="inventoryStats"></div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>Product</th><th>Current Stock</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody id="inventoryList"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reportsPage" class="hidden">
+                    <div class="stats-grid" id="reportStats"></div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>Date</th><th>Cashier</th><th>Total</th><th>Items</th></tr></thead>
+                            <tbody id="salesHistory"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add Product</h2>
+            <div class="form-group">
+                <input type="text" id="productName" placeholder="Product Name">
+            </div>
+            <div class="form-group">
+                <input type="text" id="productBarcode" placeholder="Barcode">
+            </div>
+            <div class="form-group">
+                <input type="number" id="productPrice" placeholder="Price">
+            </div>
+            <div class="form-group">
+                <input type="number" id="productStock" placeholder="Stock Quantity">
+            </div>
+            <div class="form-group">
+                <select id="productCategory">
+                    <option>Groceries</option><option>Beverages</option><option>Dairy</option>
+                    <option>Meat</option><option>Produce</option><option>Frozen</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="saveProduct()">Save</button>
+            <button onclick="closeModal()" style="margin-left: 0.5rem; padding: 0.75rem 1.5rem;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // ============ DATA STORAGE ============
+        let currentUser = null;
+        let currentCart = [];
+        let products = [];
+        let sales = [];
+        let editingProductId = null;
+
+        // Initialize sample data
+        function initData() {
+            if (!localStorage.getItem('products')) {
+                products = [
+                    { id: 1, name: 'White Bread', barcode: '8901234567890', price: 2.50, stock: 50, category: 'Groceries' },
+                    { id: 2, name: 'Milk 1L', barcode: '8901234567891', price: 1.50, stock: 30, category: 'Dairy' },
+                    { id: 3, name: 'Eggs 12pcs', barcode: '8901234567892', price: 3.50, stock: 40, category: 'Dairy' },
+                    { id: 4, name: 'Coca Cola', barcode: '8901234567893', price: 1.20, stock: 100, category: 'Beverages' },
+                    { id: 5, name: 'Potato Chips', barcode: '8901234567894', price: 1.80, stock: 60, category: 'Snacks' },
+                    { id: 6, name: 'Chicken Breast', barcode: '8901234567895', price: 6.99, stock: 20, category: 'Meat' },
+                    { id: 7, name: 'Apples 1kg', barcode: '8901234567896', price: 3.50, stock: 25, category: 'Produce' },
+                    { id: 8, name: 'Frozen Pizza', barcode: '8901234567897', price: 5.99, stock: 15, category: 'Frozen' }
+                ];
+                localStorage.setItem('products', JSON.stringify(products));
+            } else {
+                products = JSON.parse(localStorage.getItem('products'));
+            }
+
+            if (!localStorage.getItem('sales')) {
+                sales = [
+                    { id: 1, date: new Date().toISOString(), cashier: 'Cashier User', total: 25.50, items: [{ name: 'Bread', quantity: 2, price: 2.50 }] },
+                    { id: 2, date: new Date(Date.now() - 3600000).toISOString(), cashier: 'Cashier User', total: 12.00, items: [{ name: 'Milk', quantity: 1, price: 1.50 }] }
+                ];
+                localStorage.setItem('sales', JSON.stringify(sales));
+            } else {
+                sales = JSON.parse(localStorage.getItem('sales'));
+            }
+        }
+
+        // Save products to localStorage
+        function saveProducts() {
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+
+        // Save sales to localStorage
+        function saveSales() {
+            localStorage.setItem('sales', JSON.stringify(sales));
+        }
+
+        // ============ AUTHENTICATION ============
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const users = {
+                'admin@supermarket.com': { name: 'Admin User', role: 'Admin', password: 'admin123' },
+                'cashier@supermarket.com': { name: 'Cashier User', role: 'Cashier', password: 'cashier123' },
+                'manager@supermarket.com': { name: 'Store Manager', role: 'Manager', password: 'manager123' }
+            };
+            
+            const user = users[email];
+            if (user && user.password === password) {
+                currentUser = { email, name: user.name, role: user.role };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                document.getElementById('userInfo').innerHTML = `${currentUser.name}<br><small>${currentUser.role}</small>`;
+                showPage('dashboard');
+            } else {
+                alert('Invalid email or password');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('loginContainer').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+        }
+
+        function checkAuth() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                document.getElementById('userInfo').innerHTML = `${currentUser.name}<br><small>${currentUser.role}</small>`;
+                showPage('dashboard');
+            }
+        }
+
+        // ============ PAGE NAVIGATION ============
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function showPage(page) {
+            // Hide all pages
+            document.getElementById('dashboardPage').classList.add('hidden');
+            document.getElementById('posPage').classList.add('hidden');
+            document.getElementById('productsPage').classList.add('hidden');
+            document.getElementById('inventoryPage').classList.add('hidden');
+            document.getElementById('reportsPage').classList.add('hidden');
+            
+            // Show selected page
+            document.getElementById(`${page}Page`).classList.remove('hidden');
+            document.getElementById('pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
+            
+            // Update active nav
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Load page data
+            if (page === 'dashboard') loadDashboard();
+            else if (page === 'pos') loadPOS();
+            else if (page === 'products') loadProducts();
+            else if (page === 'inventory') loadInventory();
+            else if (page === 'reports') loadReports();
+        }
+
+        // ============ DASHBOARD ============
+        function loadDashboard() {
+            // Stats
+            const totalProducts = products.length;
+            const lowStock = products.filter(p => p.stock < 10).length;
+            const totalSales = sales.reduce((sum, s) => sum + s.total, 0);
+            const todaySales = sales.filter(s => new Date(s.date).toDateString() === new Date().toDateString())
+                .reduce((sum, s) => sum + s.total, 0);
+            
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-info"><h3>Today's Sales</h3><div class="stat-value">$${todaySales.toFixed(2)}</div></div></div>
+                <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-info"><h3>Total Products</h3><div class="stat-value">${totalProducts}</div></div></div>
+                <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-info"><h3>Low Stock</h3><div class="stat-value" style="color: #f59e0b;">${lowStock}</div></div></div>
+                <div class="stat-card"><div class="stat-icon">💵</div><div class="stat-info"><h3>Total Sales</h3><div class="stat-value">$${totalSales.toFixed(2)}</div></div></div>
+            `;
+            
+            // Recent transactions
+            const recent = [...sales].reverse().slice(0, 5);
+            document.getElementById('recentTransactions').innerHTML = recent.map(s => `
+                <tr><td>${new Date(s.date).toLocaleTimeString()}</td><td>${s.cashier}</td><td>$${s.total.toFixed(2)}</td><td style="color: #10b981;">Completed</td></tr>
+            `).join('') || '<tr><td colspan="4">No transactions yet</td></tr>';
+            
+            // Low stock alerts
+            const lowStockItems = products.filter(p => p.stock < 10 && p.stock > 0);
+            const outOfStock = products.filter(p => p.stock === 0);
+            let alertsHtml = '';
+            if (outOfStock.length) alertsHtml += `<div style="background: #fee2e2; padding: 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; border-left: 3px solid #ef4444;"><strong>🔴 Out of Stock:</strong> ${outOfStock.map(p => p.name).join(', ')}</div>`;
+            if (lowStockItems.length) alertsHtml += `<div style="background: #fef3c7; padding: 1rem; border-radius: 0.5rem; border-left: 3px solid #f59e0b;"><strong>⚠️ Low Stock:</strong> ${lowStockItems.map(p => `${p.name} (${p.stock} left)`).join(', ')}</div>`;
+            document.getElementById('lowStockAlerts').innerHTML = alertsHtml || '<div style="background: #d4edda; padding: 1rem; border-radius: 0.5rem;">✅ All products have sufficient stock</div>';
+        }
+
+        // ============ POS ============
+        function loadPOS() {
+            displayProductsGrid();
+            displayCart();
+        }
+
+        function displayProductsGrid() {
+            const searchTerm = document.getElementById('searchProduct')?.value.toLowerCase() || '';
+            const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm) || p.barcode.includes(searchTerm));
+            
+            document.getElementById('productGrid').innerHTML = filtered.map(p => `
+                <div class="product-card" onclick="addToCart(${p.id})">
+                    <strong>${p.name}</strong><br>
+                    <small>${p.barcode}</small>
+                    <div class="product-price">$${p.price.toFixed(2)}</div>
+                    <div>Stock: ${p.stock}</div>
+                </div>
+            `).join('') || '<div>No products found</div>';
+        }
+
+        function filterProducts() {
+            displayProductsGrid();
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            if (product.stock <= 0) {
+                alert('Out of stock!');
+                return;
+            }
+            
+            const existing = currentCart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                currentCart.push({ ...product, quantity: 1 });
+            }
+            displayCart();
+        }
+
+        function displayCart() {
+            let total = 0;
+            const cartHtml = currentCart.map(item => {
+                total += item.price * item.quantity;
+                return `
+                    <div class="cart-item">
+                        <div><strong>${item.name}</strong><br>$${item.price} x ${item.quantity}</div>
+                        <div class="cart-item-controls">
+                            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                            <button onclick="updateQuantity(${item.id}, -1)">-</button>
+                            <button onclick="updateQuantity(${item.id}, 1)">+</button>
+                            <button onclick="removeFromCart(${item.id})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('cartItemsList').innerHTML = cartHtml || '<div style="text-align: center; padding: 2rem;">Cart is empty</div>';
+            document.getElementById('cartTotal').innerText = total.toFixed(2);
+        }
+
+        function updateQuantity(id, change) {
+            const item = currentCart.find(i => i.id === id);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    currentCart = currentCart.filter(i => i.id !== id);
+                }
+                displayCart();
+            }
+        }
+
+        function removeFromCart(id) {
+            currentCart = currentCart.filter(i => i.id !== id);
+            displayCart();
+        }
+
+        function clearCart() {
+            currentCart = [];
+            displayCart();
+        }
+
+        function checkout() {
+            if (currentCart.length === 0) {
+                alert('Cart is empty!');
+                return;
+            }
+            
+            // Update stock
+            for (const item of currentCart) {
+                const product = products.find(p => p.id === item.id);
+                if (product) {
+                    product.stock -= item.quantity;
+                }
+            }
+            saveProducts();
+            
+            // Save sale
+            const total = currentCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            sales.push({
+                id: Date.now(),
+                date: new Date().toISOString(),
+                cashier: currentUser.name,
+                total: total,
+                payment: paymentMethod,
+                items: currentCart.map(i => ({ name: i.name, quantity: i.quantity, price: i.price }))
+            });
+            saveSales();
+            
+            alert(`Sale completed! Total: $${total.toFixed(2)}`);
+            clearCart();
+            loadDashboard();
+            showPage('reports');
+        }
+
+        // ============ PRODUCTS ============
+        function loadProducts() {
+            const searchTerm = document.getElementById('productSearch')?.value.toLowerCase() || '';
+            const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm) || p.barcode.includes(searchTerm));
+            
+            document.getElementById('productsList').innerHTML = filtered.map(p => `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>${p.barcode}</td>
+                    <td>$${p.price.toFixed(2)}</td>
+                    <td style="${p.stock < 10 ? 'color: #f59e0b;' : ''}">${p.stock}</td>
+                    <td><button onclick="editProduct(${p.id})">✏️</button> <button onclick="deleteProduct(${p.id})">🗑️</button></td>
+                </tr>
+            `).join('') || '<tr><td colspan="5">No products found</td></tr>';
+        }
+
+        function openProductModal(productId = null) {
+            editingProductId = productId;
+            if (productId) {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    document.getElementById('modalTitle').innerText = 'Edit Product';
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productBarcode').value = product.barcode;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productStock').value = product.stock;
+                    document.getElementById('productCategory').value = product.category;
+                }
+            } else {
+                document.getElementById('modalTitle').innerText = 'Add Product';
+                document.getElementById('productName').value = '';
+                document.getElementById('productBarcode').value = '';
+                document.getElementById('productPrice').value = '';
+                document.getElementById('productStock').value = '';
+                document.getElementById('productCategory').value = 'Groceries';
+            }
+            document.getElementById('productModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+            editingProductId = null;
+        }
+
+        function saveProduct() {
+            const productData = {
+                name: document.getElementById('productName').value,
+                barcode: document.getElementById('productBarcode').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                category: document.getElementById('productCategory').value
+            };
+            
+            if (!productData.name || isNaN(productData.price)) {
+                alert('Please fill required fields');
+                return;
+            }
+            
+            if (editingProductId) {
+                const index = products.findIndex(p => p.id === editingProductId);
+                if (index !== -1) {
+                    products[index] = { ...products[index], ...productData };
+                }
+            } else {
+                productData.id = Date.now();
+                products.push(productData);
+            }
+            
+            saveProducts();
+            closeModal();
+            loadProducts();
+            if (document.getElementById('posPage') && !document.getElementById('posPage').classList.contains('hidden')) {
+                loadPOS();
+            }
+        }
+
+        function editProduct(id) {
+            openProductModal(id);
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Delete this product?')) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                loadProducts();
+                loadPOS();
+                loadInventory();
+            }
+        }
+
+        // ============ INVENTORY ============
+        function loadInventory() {
+            const lowStock = products.filter(p => p.stock < 10).length;
+            const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+            
+            document.getElementById('inventoryStats').innerHTML = `
+                <div class="stat-card"><div class="stat-info"><h3>Total Items</h3><div class="stat-value">${products.length}</div></div></div>
+                <div class="stat-card"><div class="stat-info"><h3>Low Stock Items</h3><div class="stat-value" style="color: #f59e0b;">${lowStock}</div></div></div>
+                <div class="stat-card"><div class="stat-info"><h3>Inventory Value</h3><div class="stat-value">$${totalValue.toFixed(2)}</div></div></div>
+            `;
+            
+            document.getElementById('inventoryList').innerHTML = products.map(p => `
+                <tr>
+                    <td>${p.name}</td>
+                    <td style="${p.stock < 10 ? 'color: #f59e0b; font-weight: bold;' : ''}">${p.stock} ${p.stock < 10 ? '⚠️' : ''}</td>
+                    <td>${p.stock === 0 ? 'Out of Stock' : (p.stock < 10 ? 'Low Stock' : 'Good')}</td>
+                    <td><button onclick="restockProduct(${p.id})">📦 Restock</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function restockProduct(id) {
+            const quantity = prompt('Enter quantity to add:');
+            if (quantity && !isNaN(quantity)) {
+                const product = products.find(p => p.id === id);
+                if (product) {
+                    product.stock += parseInt(quantity);
+                    saveProducts();
+                    loadInventory();
+                    loadProducts();
+                    loadDashboard();
+                }
+            }
+        }
+
+        // ============ REPORTS ============
+        function loadReports() {
+            const totalSales = sales.reduce((sum, s) => sum + s.total, 0);
+            const avgSale = sales.length ? totalSales / sales.length : 0;
+            
+            document.getElementById('reportStats').innerHTML = `
+                <div class="stat-card"><div class="stat-info"><h3>Total Sales</h3><div class="stat-value">$${totalSales.toFixed(2)}</div></div></div>
+                <div class="stat-card"><div class="stat-info"><h3>Transactions</h3><div class="stat-value">${sales.length}</div></div></div>
+                <div class="stat-card"><div class="stat-info"><h3>Average Sale</h3><div class="stat-value">$${avgSale.toFixed(2)}</div></div></div>
+            `;
+            
+            document.getElementById('salesHistory').innerHTML = [...sales].reverse().map(s => `
+                <tr>
+                    <td>${new Date(s.date).toLocaleString()}</td>
+                    <td>${s.cashier}</td>
+                    <td>$${s.total.toFixed(2)}</td>
+                    <td>${s.items.map(i => `${i.name} x${i.quantity}`).join(', ')}</td>
+                </tr>
+            `).join('') || '<td><td colspan="4">No sales yet</td></tr>';
+        }
+
+        // ============ INITIALIZE ============
+        initData();
+        checkAuth();
+    </script>
+</body>
+</html>
